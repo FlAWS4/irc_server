@@ -10,3 +10,30 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#pragma once
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cctype>
+
+struct IrcMsg
+{
+    std::string     prefix;
+    std::string     command;
+    std::vector<std::string> params;
+};
+
+class Parser
+{
+    private:
+        Parser();
+        parser(const parser &other);
+        parser &operator=(const parser &other);
+        
+        static  std::string toUpper(const std::string &value);
+
+        public:
+            static  IrcMsg  parse(const std::string &line);
+};
+
