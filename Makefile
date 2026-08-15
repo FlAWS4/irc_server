@@ -1,8 +1,4 @@
 NAME = ircserv
-CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
-INCLUDES = -Iinclude
-
 SRCS = src/main.cpp \
        src/client/Client.cpp \
        src/server/Server.cpp \
@@ -11,21 +7,39 @@ SRCS = src/main.cpp \
        src/server/ServerLoop.cpp \
        src/server/ServerSocket.cpp
 
-OBJS = $(SRCS:.cpp=.o)
+OBJDIR = obj
+OBJS = $(addprefix $(OBJDIR)/,$(SRCS:.cpp=.o))
+
+CXX = c++
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+
+# Colors
+RED = \e[0;31m
+GREEN = \e[0;32m
+YELLOW = \e[0;33m
+BLUE = \e[0;34m
+MAGENTA = \e[0;35m
+CYAN = \e[0;36m
+NC = \e[0m
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
+	@echo "$(BLUE)[LINK]$(NC) $(NAME)"
+	@$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJS)
 
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+$(OBJDIR)/%.o: %.cpp
+	@mkdir -p $(OBJDIR)
+	@echo "$(YELLOW)[CC]$(NC) $<"
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS)
+	@echo "$(RED)[CLEAN]$(NC) removing objects"
+	@rm -rf $(OBJDIR)
 
 fclean: clean
-	rm -f $(NAME)
+	@echo "$(RED)[FCLEAN]$(NC) removing $(NAME)"
+	@rm -f $(NAME)
 
 re: fclean all
 
