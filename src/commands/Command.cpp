@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-/*   Updated: 2026/08/15 02:47:27 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/15 03:04:58 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ bool    Command::execute(Server &server, Client &client, const IrcMsg &msg)
         return (Command::handlePing(server, client, msg));
     if (msg.command == "QUIT")
         return (Command::handleQuit(server, client, msg));
-    Command::sendUknownCommand(server, client, msg);
+    Command::sendUnknownCommand(server, client, msg);
     return true;
 }
 
@@ -57,13 +57,13 @@ bool Command::handleQuit(Server &server, Client &client,
 	return (false);
 }
 
- void Command::sendUknownCommand(Server &server, Client &client, const IrcMsg &msg)
+ void Command::sendUnknownCommand(Server &server, Client &client, const IrcMsg &msg)
 {
     std::string user;
 
     user = client.getNickname();
     if (user.empty())
         user = "*";
-    server.queueMessage(client.getFd(), ":ircserv 421 " + user + " " + msg.command + " :unknown command");
+    server.queueMessage(client.getFd(), ":ircserv 421 " + user + " " + msg.command + " :Unknown command");
     
 }

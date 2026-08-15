@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 00:11:11 by hchowdhu          #+#    #+#             */
-/*   Updated: 2026/08/15 02:36:01 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/15 03:04:37 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ class  Command
 	    Command &operator=(const Command &other);
         static  bool handlePing(Server &server, Client &client, const IrcMsg &msg);
         static  bool handleQuit(Server &server, Client &client, const IrcMsg &msg);
-        static  void sendUknownCommand(Server &server, Client &client, const IrcMsg &msg);
+        static  void sendUnknownCommand(Server &server, Client &client, const IrcMsg &msg);
     public:
         static  bool execute(Server &server, Client &client, const IrcMsg &msg);
 
