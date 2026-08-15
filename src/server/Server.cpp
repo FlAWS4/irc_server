@@ -3,14 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hchowdhu <hchowdhu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 00:12:27 by hchowdhu          #+#    #+#             */
-/*   Updated: 2026/07/27 00:07:32 by hchowdhu         ###   ########.fr       */
+/*   Updated: 2026/08/15 02:58:39 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "Parser.hpp"
+#include "Command.hpp"
 #include <cctype>
 #include <iostream>
 #include <stdexcept>
@@ -85,26 +87,9 @@ void Server::queueMessage(int fd, const std::string &message)
 
 bool Server::processLine(Client &client, const std::string &line)
 {
-	std::string command;
-	size_t position = line.find(' ');
+	IrcMsg	msg;
 
-	if (position == std::string::npos)
-		command = line;
-	else
-		command = line.substr(0, position);
-	for (size_t i = 0; i < command.size(); ++i)
-		command[i] = static_cast<char>(std::toupper(
-			static_cast<unsigned char>(command[i])));
 	std::cout << "[client " << client.getFd() << "] " << line << std::endl;
-	if (command == "PING")
-	{
-		if (position == std::string::npos || position + 1 >= line.size())
-			queueMessage(client.getFd(), ":irc.local 409 * :No origin specified");
-		else
-			queueMessage(client.getFd(), "PONG " + line.substr(position + 1));
-	}
-	else if (command == "QUIT")
-		return (false);
-	/* Replace this function body with Parser/Command dispatch later. */
-	return (true);
+	msg = Parser::parse(line);
+	return (Command::execute(*this, client, msg));
 }

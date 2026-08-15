@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-/*   Updated: 2026/08/15 02:38:26 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/15 02:47:27 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ bool Command::handlePing(Server &server, Client &client, const IrcMsg &msg)
 }
 
 bool Command::handleQuit(Server &server, Client &client,
-		const IrcMessage &msg)
+		const IrcMsg &msg)
 {
 	(void)server;
 	(void)client;
