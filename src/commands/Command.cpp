@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-/*   Updated: 2026/08/15 03:50:51 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/15 03:56:55 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ bool Command::handleUser(Server &server, Client &client, const IrcMsg &msg)
     }
     if (msg.params.size() < 4)
     {
-        server.queueMessage(client.getFd(), ":ircserv 461 " + user + "USER :Not enough parameters");
+        server.queueMessage(client.getFd(), ":ircserv 461 " + user + " USER :Not enough parameters");
         return true;
     }
     client.setUsername(msg.params[0]);
