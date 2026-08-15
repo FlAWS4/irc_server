@@ -5,7 +5,9 @@ SRCS = src/main.cpp \
        src/server/ServerClient.cpp \
        src/server/ServerInit.cpp \
        src/server/ServerLoop.cpp \
-       src/server/ServerSocket.cpp
+       src/server/ServerSocket.cpp \
+       src/parser/Parser.cpp \
+       src/commands/Command.cpp
 
 OBJDIR = obj
 OBJS = $(addprefix $(OBJDIR)/,$(SRCS:.cpp=.o))
@@ -29,9 +31,9 @@ $(NAME): $(OBJS)
 	@$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJS)
 
 $(OBJDIR)/%.o: %.cpp
-	@mkdir -p $(OBJDIR)
+	@mkdir -p $(dir $@)
 	@echo "$(YELLOW)[CC]$(NC) $<"
-	@$(CXX) $(CXXFLAGS) -c $< -o $@
+	@$(CXX) $(CXXFLAGS) -Iinclude -c $< -o $@
 
 clean:
 	@echo "$(RED)[CLEAN]$(NC) removing objects"
