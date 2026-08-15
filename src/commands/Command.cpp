@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-/*   Updated: 2026/08/15 03:56:55 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/15 04:00:00 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,19 +47,24 @@ bool    Command::execute(Server &server, Client &client, const IrcMsg &msg)
 
 bool Command::handlePass(Server &server, Client &client, const IrcMsg &msg)
 {
-    if (client.isRegistered())
+    std::string user;
+
+    user = client.getNickname();
+    if (user.empty())
+        user = "*";
+    if (client.isRegistered() || client.isPasswordAccepted())
     {
-        server.queueMessage(client.getFd(), ":ircserv 462 " + client.getNickname() + " :already registered" );
+        server.queueMessage(client.getFd(), ":ircserv 462 " + user + " :You may not reregister" );
         return (true);
     }
     if (msg.params.empty())
     {
-        server.queueMessage(client.getFd(), ":ircserv 461 * PASS :Not enough parameters");
+        server.queueMessage(client.getFd(), ":ircserv 461 " + user + " PASS :Not enough parameters");
         return true;
     }
     if (msg.params[0] != server.getPassword())
     {
-        server.queueMessage(client.getFd(), ":ircserv 464 * :Password incorrect");
+        server.queueMessage(client.getFd(), ":ircserv 464 " + user + " :Password incorrect");
         return true;
     }
     client.setPasswordAccepted(true);
@@ -70,16 +75,27 @@ bool Command::handlePass(Server &server, Client &client, const IrcMsg &msg)
 
 bool Command::handleNick(Server &server, Client &client, const IrcMsg &msg)
 {
+	std::string user;
+
+	user = client.getNickname();
+	if (user.empty())
+		user = "*";
 	if (msg.params.empty())
 	{
 		server.queueMessage(client.getFd(),
-			":ircserv 431 * :No nickname given");
+			":ircserv 431 " + user + " :No nickname given");
+		return (true);
+	}
+	if (!Command::isValidNickname(msg.params[0]))
+	{
+		server.queueMessage(client.getFd(),
+			":ircserv 432 " + user + " " + msg.params[0] + " :Erroneous nickname");
 		return (true);
 	}
 	if (Command::isNicknameUsed(server, client, msg.params[0]))
 	{
 		server.queueMessage(client.getFd(),
-			":ircserv 433 * " + msg.params[0] + " :Nickname is already in use");
+			":ircserv 433 " + user + " " + msg.params[0] + " :Nickname is already in use");
 		return (true);
 	}
 	client.setNickname(msg.params[0]);
@@ -96,7 +112,7 @@ bool Command::handleUser(Server &server, Client &client, const IrcMsg &msg)
         user = "*";
     if (client.isRegistered())
     {
-        server.queueMessage(client.getFd(), ":ircserv 462 " + client.getNickname() + " :already registered" );
+        server.queueMessage(client.getFd(), ":ircserv 462 " + user + " :You may not reregister" );
         return (true);
     }
     if (msg.params.size() < 4)
@@ -134,6 +150,21 @@ bool Command::isNicknameUsed(Server &server, Client &client, const std::string &
         return true;
     }
     return(false);
+}
+
+bool Command::isValidNickname(const std::string &nickname)
+{
+	if (nickname.empty())
+		return (false);
+	if (nickname[0] == '#' || nickname[0] == ':' || nickname[0] == '&')
+		return (false);
+	for (size_t i = 0; i < nickname.size(); ++i)
+	{
+		if (nickname[i] == ' ' || nickname[i] == ',' || nickname[i] == '*'
+			|| nickname[i] == '?' || nickname[i] == '!' || nickname[i] == '@')
+			return (false);
+	}
+	return (true);
 }
 
 bool Command::handlePing(Server &server, Client &client, const IrcMsg &msg)
