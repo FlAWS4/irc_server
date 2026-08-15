@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 00:11:11 by hchowdhu          #+#    #+#             */
-/*   Updated: 2026/08/15 01:59:26 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/15 02:36:01 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ class   Client;
 class  Command
 {
     private:
-        command();
+        Command();
         Command(const Command &other);
 	    Command &operator=(const Command &other);
         static  bool handlePing(Server &server, Client &client, const IrcMsg &msg);

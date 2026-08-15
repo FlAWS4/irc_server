@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-/*   Updated: 2026/08/15 01:59:34 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/15 02:38:26 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,9 @@ bool    Command::execute(Server &server, Client &client, const IrcMsg &msg)
         return true;
     if (msg.command == "PING")
         return (Command::handlePing(server, client, msg));
-    else if (msg.command == "QUIT")
-        return (Command::handlePing(server, client, msg));
-    else
-         return (Command::sendUknownCommand(server, client, msg));
+    if (msg.command == "QUIT")
+        return (Command::handleQuit(server, client, msg));
+    Command::sendUknownCommand(server, client, msg);
     return true;
 }
 

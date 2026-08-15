@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hchowdhu <hchowdhu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 00:11:18 by hchowdhu          #+#    #+#             */
-/*   Updated: 2026/07/13 00:11:19 by hchowdhu         ###   ########.fr       */
+/*   Updated: 2026/08/15 02:34:58 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,8 @@ class Parser
 {
     private:
         Parser();
-        parser(const parser &other);
-        parser &operator=(const parser &other);
+        Parser(const Parser &other);
+        Parser &operator=(const Parser &other);
         
         static  std::string toUpper(const std::string &value);
 

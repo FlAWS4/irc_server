@@ -3,19 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hchowdhu <hchowdhu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 00:12:18 by hchowdhu          #+#    #+#             */
-/*   Updated: 2026/07/13 00:12:21 by hchowdhu         ###   ########.fr       */
+/*   Updated: 2026/08/15 02:35:47 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Parser.hpp"
 
 
-parser::parser() {}
+Parser::Parser() {}
 
-parser::parser(const parser &other) { (void)other; }
+Parser::Parser(const Parser &other) { (void)other; }
 
 Parser &Parser::operator=(const Parser &other)
 {
@@ -36,9 +36,9 @@ std::string Parser::toUpper(const std::string &value)
 	return (result);
 }
 
-IrcMsg parser::parse(const std::string &line)
+IrcMsg Parser::parse(const std::string &line)
 {
-	IrcMessage	msg;
+	IrcMsg	msg;
 	size_t		i;
 	size_t		start;
 
