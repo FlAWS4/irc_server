@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-/*   Updated: 2026/08/16 02:54:16 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/16 02:57:11 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ bool    Command::execute(Server &server, Client &client, const IrcMsg &msg)
     return true;
 }
 
-bool Command::handlePass(Server &server, Client &client, const IrcMsg &msg)
+bool Command::handleJoin(Server &server, Client &client, const IrcMsg &msg)
 {
     std::string     channelName;
     Channel *channel;
@@ -76,9 +76,9 @@ bool Command::handlePass(Server &server, Client &client, const IrcMsg &msg)
         if (channel->getClientCount() == 1)
             channel->addOperator(&client);
     }
-    prefix = ":" + client>getNickname() + ":" + client.getUsername + "@" + client.getHostname();
+    prefix = ":" + client.getNickname() + ":" + client.getUsername() + "@" + client.getHostname();
     server.queueMessage(client.getFd(), prefix + " JOIN " + channelName);
-    return true:
+    return true;
     
 }
 
