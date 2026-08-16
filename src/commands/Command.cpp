@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-/*   Updated: 2026/08/16 04:50:00 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/16 04:57:38 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,6 +105,7 @@ bool Command::handlePrivmsg(Server &server, Client &client, const IrcMsg &msg)
             server.queueMessage(client.getFd(), ":ircserv 404 " + user + " " + target + " :Can't send to channel");
             return true;
         }
+        channel->broadcast(server, &client, prefix + " PRIVMSG " + target + " :" + text);
     }
     
     receiver = Command::findClientByNickname(server, target);
@@ -130,7 +131,7 @@ bool Command::handleJoin(Server &server, Client &client, const IrcMsg &msg)
 	}
     if (msg.params.empty())
     {
-        server.queueMessage(client.getFd(), ":ircserv 461 " + client.getNickname() + " JOIN :Not enough parameters");
+        server.queueMessage(client.getFd(), ":ircserv 461 " + client.getNickname() + "No user given (PRIVMSG)");
         return true;
     }
     channelName = msg.params[0];
