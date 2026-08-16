@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-/*   Updated: 2026/08/16 04:32:53 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/16 04:35:24 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ bool Command::handlePrivmsg(Server &server, Client &client, const IrcMsg &msg)
     }
     if(msg.params.size() < 2 || msg.params[1].empty())
     {
-        serever.queueMessage(client.getFd(), "ircserv 412 " + user + " :No text to send");
+        server.queueMessage(client.getFd(), "ircserv 412 " + user + " :No text to send");
         return true;
     }
     target = msg.params[0];
@@ -102,18 +102,18 @@ bool Command::handlePrivmsg(Server &server, Client &client, const IrcMsg &msg)
         }
         if (!channel->hasClient(&client))
         {
-            serever.queueMessage(client.getFd(), ":ircserv 404 " + user + " " + target + " :Can't send to channel");
+            server.queueMessage(client.getFd(), ":ircserv 404 " + user + " " + target + " :Can't send to channel");
             return true;
         }
     }
     
-    receiver = Command::findClientByNickname(serever, target);
+    receiver = Command::findClientByNickname(server, target);
     if (receiver == NULL)
     {
-        serever.queueMessage(client.getFd(), "ircserv 401 " + user + " " + target + " :No such nick/channel");
+        server.queueMessage(client.getFd(), "ircserv 401 " + user + " " + target + " :No such nick/channel");
         return true;
     }
-    serever.queueMessage(receiver->getFd(), prefix + " PRIVMSG " + target + " :" + text);
+    server.queueMessage(receiver->getFd(), prefix + " PRIVMSG " + target + " :" + text);
     return (true);
 }
 
