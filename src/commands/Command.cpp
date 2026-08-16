@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-/*   Updated: 2026/08/16 04:35:24 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/16 04:50:00 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,12 +80,12 @@ bool Command::handlePrivmsg(Server &server, Client &client, const IrcMsg &msg)
 	}
     if (msg.params.empty())
     {
-        server.queueMessage(client.getFd(), ":ircserv 461 " + client.getNickname() + " JOIN :Not enough parameters");
+        server.queueMessage(client.getFd(), ":ircserv 411 " + client.getNickname() + " JOIN :Not enough parameters");
         return true;
     }
     if(msg.params.size() < 2 || msg.params[1].empty())
     {
-        server.queueMessage(client.getFd(), "ircserv 412 " + user + " :No text to send");
+        server.queueMessage(client.getFd(), ":ircserv 412 " + user + " :No text to send");
         return true;
     }
     target = msg.params[0];
@@ -110,7 +110,7 @@ bool Command::handlePrivmsg(Server &server, Client &client, const IrcMsg &msg)
     receiver = Command::findClientByNickname(server, target);
     if (receiver == NULL)
     {
-        server.queueMessage(client.getFd(), "ircserv 401 " + user + " " + target + " :No such nick/channel");
+        server.queueMessage(client.getFd(), ":ircserv 401 " + user + " " + target + " :No such nick/channel");
         return true;
     }
     server.queueMessage(receiver->getFd(), prefix + " PRIVMSG " + target + " :" + text);
