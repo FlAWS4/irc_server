@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-/*   Updated: 2026/08/16 02:57:11 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/16 03:11:00 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ bool Command::handleJoin(Server &server, Client &client, const IrcMsg &msg)
 	}
     if (msg.params.empty())
     {
-        server.queueMessage(client.getFd(), ":ircserv 461 " + client.getNickname() + " JOIN: Not enough parameters");
+        server.queueMessage(client.getFd(), ":ircserv 461 " + client.getNickname() + " JOIN :Not enough parameters");
         return true;
     }
     channelName = msg.params[0];
@@ -70,13 +70,12 @@ bool Command::handleJoin(Server &server, Client &client, const IrcMsg &msg)
 		return (true);
 	}
     channel = server.createChannel(channelName);
-    if (!channel->hasClient(&client))
-    {
-        channel->addClient(&client);
-        if (channel->getClientCount() == 1)
-            channel->addOperator(&client);
-    }
-    prefix = ":" + client.getNickname() + ":" + client.getUsername() + "@" + client.getHostname();
+    if (channel->hasClient(&client))
+        return (true);
+    channel->addClient(&client);
+    if (channel->getClientCount() == 1)
+        channel->addOperator(&client);
+    prefix = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostname();
     server.queueMessage(client.getFd(), prefix + " JOIN " + channelName);
     return true;
     
