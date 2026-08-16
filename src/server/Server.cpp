@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 00:12:27 by hchowdhu          #+#    #+#             */
-/*   Updated: 2026/08/15 02:58:39 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/16 02:34:32 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 
 Server::Server(const std::string &port, const std::string &password)
 	: _port(parsePort(port)), _password(password), _serverFd(-1),
-	  _running(false), _pollFds(), _clients()
+	  _running(false), _pollFds(), _clients(), _channels()
 {
 	if (_password.empty())
 		throw (std::runtime_error("Password cannot be empty"));
@@ -93,3 +93,21 @@ bool Server::processLine(Client &client, const std::string &line)
 	msg = Parser::parse(line);
 	return (Command::execute(*this, client, msg));
 }
+
+Channel *Server::createChannel(const std::string &name)
+{
+	std::map<std::string, Channel>::iterator it = _channels.find(name);
+	if (it != _channels.end())
+		return(&it->second);
+	std::pair<std::map<std::string, Channel>::iterator, bool> result = _channels.insert(std::make_pair(name, Channel(name)));
+	return (&result.first->second);
+}
+
+Channel *Server::getChannel(const std::string &name)
+{
+	std::map<std::string, Channel>::iterator it = _channels.find(name);
+	if (it == _channels.end())
+		return NULL;
+	return(&it->second);
+}
+

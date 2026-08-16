@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 00:11:01 by hchowdhu          #+#    #+#             */
-/*   Updated: 2026/08/16 02:10:33 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/16 02:36:27 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-class client;
+class Client;
 
 class Channel
 {
@@ -35,7 +35,7 @@ class Channel
         size_t  getClientCount() const;
         bool    hasClient(Client  *client) const;
         bool    isOperator(Client  *client) const;
-        void    addClient(Client  *client) const;
-        void    addOperator(Client  *client) const;
+        void    addClient(Client  *client);
+        void    addOperator(Client  *client);
         void broadcast(Client *sender, const std::string &msg);
 };

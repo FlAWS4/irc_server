@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-/*   Updated: 2026/08/15 04:00:00 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/16 02:54:16 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,45 @@ bool    Command::execute(Server &server, Client &client, const IrcMsg &msg)
         return (Command::handleNick(server, client, msg));
     if (msg.command == "USER")
         return (Command::handleUser(server, client, msg));
+    if(msg.command == "JOIN")
+        return (Command::handleJoin(server, client, msg));
     Command::sendUnknownCommand(server, client, msg);
     return true;
+}
+
+bool Command::handlePass(Server &server, Client &client, const IrcMsg &msg)
+{
+    std::string     channelName;
+    Channel *channel;
+    std::string prefix;
+
+    if (!client.isRegistered())
+    {
+		server.queueMessage(client.getFd(), ":ircserv 451 * :You have not registered");
+		return (true);
+	}
+    if (msg.params.empty())
+    {
+        server.queueMessage(client.getFd(), ":ircserv 461 " + client.getNickname() + " JOIN: Not enough parameters");
+        return true;
+    }
+    channelName = msg.params[0];
+    if(channelName.empty() || channelName[0] != '#')
+    {
+		server.queueMessage(client.getFd(), ":ircserv 403 " + client.getNickname() + " " + channelName + " :No such channel");
+		return (true);
+	}
+    channel = server.createChannel(channelName);
+    if (!channel->hasClient(&client))
+    {
+        channel->addClient(&client);
+        if (channel->getClientCount() == 1)
+            channel->addOperator(&client);
+    }
+    prefix = ":" + client>getNickname() + ":" + client.getUsername + "@" + client.getHostname();
+    server.queueMessage(client.getFd(), prefix + " JOIN " + channelName);
+    return true:
+    
 }
 
 bool Command::handlePass(Server &server, Client &client, const IrcMsg &msg)

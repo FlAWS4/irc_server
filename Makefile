@@ -7,6 +7,7 @@ SRCS = src/main.cpp \
        src/server/ServerLoop.cpp \
        src/server/ServerSocket.cpp \
        src/parser/Parser.cpp \
+	   src/channel/Channel.cpp \
        src/commands/Command.cpp
 
 OBJDIR = obj

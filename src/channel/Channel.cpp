@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 00:11:27 by hchowdhu          #+#    #+#             */
-/*   Updated: 2026/08/16 02:13:37 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/16 02:36:46 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,6 @@ void Channel::broadcast(Client *sender, const std::string &msg)
 	for (size_t i = 0; i < _clients.size(); ++i)
 	{
 		if (_clients[i] != sender)
-			_clients[i]->outputBuffer() += message + "\r\n";
+			_clients[i]->outputBuffer() += msg + "\r\n";
 	}
 }
