@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 00:11:01 by hchowdhu          #+#    #+#             */
-/*   Updated: 2026/08/16 02:36:27 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/16 03:58:31 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <vector>
 
 class Client;
+class Server;
 
 class Channel
 {
@@ -37,5 +38,5 @@ class Channel
         bool    isOperator(Client  *client) const;
         void    addClient(Client  *client);
         void    addOperator(Client  *client);
-        void broadcast(Client *sender, const std::string &msg);
+        void broadcast(Server &server, Client *sender, const std::string &msg);
 };

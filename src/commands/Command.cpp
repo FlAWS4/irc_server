@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-/*   Updated: 2026/08/16 03:11:00 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/16 04:32:53 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,8 +43,78 @@ bool    Command::execute(Server &server, Client &client, const IrcMsg &msg)
         return (Command::handleUser(server, client, msg));
     if(msg.command == "JOIN")
         return (Command::handleJoin(server, client, msg));
+    if (msg.command == "PRIVMSG")
+        return (Command::handlePrivmsg(server, client, msg));
     Command::sendUnknownCommand(server, client, msg);
     return true;
+}
+
+
+Client *Command::findClientByNickname(Server &server, const std::string &nickname)
+{
+    std::map<int, Client> &clients = server.getClients();
+    for(std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it)
+    {
+        if (it->second.getNickname() == nickname)
+            return(&it->second);
+    }
+    return (NULL);
+}
+
+bool Command::handlePrivmsg(Server &server, Client &client, const IrcMsg &msg)
+{
+    std::string user;
+    std::string target;
+    std::string text;
+    std::string prefix;
+    Client  *receiver;
+    Channel *channel;
+
+    user = client.getNickname();
+    if (user.empty())
+        user = "*";
+    if (!client.isRegistered())
+    {
+		server.queueMessage(client.getFd(), ":ircserv 451 * :You have not registered");
+		return (true);
+	}
+    if (msg.params.empty())
+    {
+        server.queueMessage(client.getFd(), ":ircserv 461 " + client.getNickname() + " JOIN :Not enough parameters");
+        return true;
+    }
+    if(msg.params.size() < 2 || msg.params[1].empty())
+    {
+        serever.queueMessage(client.getFd(), "ircserv 412 " + user + " :No text to send");
+        return true;
+    }
+    target = msg.params[0];
+    text = msg.params[1];
+    prefix = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostname();
+    
+    if (!target.empty() && target[0] == '#')
+    {
+        channel = server.getChannel(target);
+        if(channel == NULL)
+        {
+            server.queueMessage(client.getFd(), ":ircserv 403 " + user + " " + target + " :No such channel");
+		    return (true);
+        }
+        if (!channel->hasClient(&client))
+        {
+            serever.queueMessage(client.getFd(), ":ircserv 404 " + user + " " + target + " :Can't send to channel");
+            return true;
+        }
+    }
+    
+    receiver = Command::findClientByNickname(serever, target);
+    if (receiver == NULL)
+    {
+        serever.queueMessage(client.getFd(), "ircserv 401 " + user + " " + target + " :No such nick/channel");
+        return true;
+    }
+    serever.queueMessage(receiver->getFd(), prefix + " PRIVMSG " + target + " :" + text);
+    return (true);
 }
 
 bool Command::handleJoin(Server &server, Client &client, const IrcMsg &msg)
