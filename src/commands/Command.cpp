@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-/*   Updated: 2026/08/18 06:44:07 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/18 06:47:30 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,13 +106,13 @@ bool Command::handleInvite(Server &server, Client &client, const IrcMsg &msg)
 	}
     if(channel->hasClient(target))
     {
-        server.queueMessage(client.getFd(), ":ircserv 482 " + user + " " + targetNick + " " + channelName + " :is already on channel");
+        server.queueMessage(client.getFd(), ":ircserv 443 " + user + " " + targetNick + " " + channelName + " :is already on channel");
         return true;
     }
     
     channel->addInvite(target);
     prefix = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostname();
-    server.queueMessage(target->getFd(), prefix + " INViTE " + target->getNickname() + " :" + channelName);
+    server.queueMessage(target->getFd(), prefix + " INVITE " + target->getNickname() + " :" + channelName);
     server.queueMessage(client.getFd(), ":ircserv 341 " + user + " " + target->getNickname() + " " + channelName);
     return true;
     
