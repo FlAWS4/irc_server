@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 00:11:27 by hchowdhu          #+#    #+#             */
-/*   Updated: 2026/08/18 04:27:08 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/18 06:43:40 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,13 +16,13 @@
 
 Channel::Channel() {}
 
-Channel::Channel(const std::string &name) : _name(name), _clients(), _operators(), _topic()
+Channel::Channel(const std::string &name) : _name(name), _clients(), _operators(), _topic(), _invited()
 {
 }
 
 Channel::Channel(const Channel &other)
 	: _name(other._name), _clients(other._clients),
-	  _operators(other._operators), _topic(other._topic)
+	  _operators(other._operators), _topic(other._topic), _invited(other._invited)
 {
 }
 
@@ -34,6 +34,7 @@ Channel &Channel::operator=(const Channel &other)
 		_clients = other._clients;
 		_operators = other._operators;
 		_topic = other._topic;
+		_invited = other._invited;
 	}
 	return (*this);
 }
@@ -119,6 +120,35 @@ void Channel::removeOp(Client *client)
 	}
 }
 
+bool Channel::isInvited(Client *client) const
+{
+	for (size_t i = 0; i < _invited.size(); ++i)
+	{
+		if (_invited[i] == client)
+			return true;
+	}
+	return false;
+}
+
+void Channel::addInvite(Client *client)
+{
+	if (client == NULL || isInvited(client))
+		return ;
+	_invited.push_back(client);
+		
+}
+
+void Channel::removeInvite(Client *client)
+{
+	for (std::vector< Client *>::iterator it = _invited.begin(); it != _invited.end(); ++it)
+	{
+		if (*it == client)
+		{
+			_invited.erase(it);
+			return ;
+		}
+	}
+}
 
 void Channel::broadcast(Server &server, Client *sender, const std::string &msg)
 {

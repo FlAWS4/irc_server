@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 00:11:01 by hchowdhu          #+#    #+#             */
-/*   Updated: 2026/08/18 04:54:35 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/18 06:15:42 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ class Channel
         std::vector<Client *>   _clients;
         std::vector<Client *>   _operators;
         std::string     _topic;
+        std::vector<Client *>   _invited;
         Channel();
         
     public:
@@ -43,5 +44,8 @@ class Channel
         void    addOperator(Client  *client);
         void    removeOp(Client *client);
         void    removeClient(Client *client);
+        bool    isInvited(Client *client) const;
+        void    addInvite(Client *client);
+        void    removeInvite(Client *client);
         void broadcast(Server &server, Client *sender, const std::string &msg);
 };

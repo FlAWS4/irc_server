@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-/*   Updated: 2026/08/18 05:30:42 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/18 06:44:07 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,10 +47,75 @@ bool    Command::execute(Server &server, Client &client, const IrcMsg &msg)
         return (Command::handleKick(server, client, msg));
     if(msg.command == "JOIN")
         return (Command::handleJoin(server, client, msg));
+    if (msg.command == "INVITE")
+        return(Command::handleInvite(server, client, msg));
     if (msg.command == "PRIVMSG")
         return (Command::handlePrivmsg(server, client, msg));
     Command::sendUnknownCommand(server, client, msg);
     return true;
+}
+
+bool Command::handleInvite(Server &server, Client &client, const IrcMsg &msg)
+{
+    std::string	user;
+	std::string	targetNick;
+	std::string	channelName;
+	std::string	prefix;
+	Client		*target;
+	Channel		*channel;
+    
+    user = client.getNickname();
+	if (user.empty())
+		user = "*";
+
+	if (!client.isRegistered())
+	{
+		server.queueMessage(client.getFd(), ":ircserv 451 " + user + " :You have not registered");
+		return (true);
+	}
+    if(msg.params.size() < 2)
+	{
+		server.queueMessage(client.getFd(), ":ircserv 461 " + user + " INVITE :Not enough parameters");
+		return (true);
+	}
+    
+    targetNick = msg.params[0];
+	channelName = msg.params[1];
+    target = Command::findClientByNickname(server, targetNick);
+	if(target == NULL)
+	{
+		server.queueMessage(client.getFd(), ":ircserv 401 " + user + " " + targetNick + " :No such nick/channel");
+		return (true);
+	}
+    
+	channel = server.getChannel(channelName);
+	if (channel == NULL)
+	{
+		server.queueMessage(client.getFd(), ":ircserv 403 " + user + " " + channelName + " :No such channel");
+		return (true);
+	}
+	if (!channel->hasClient(&client))
+	{
+		server.queueMessage(client.getFd(), ":ircserv 442 " + user + " " + channelName + " :You're not on that channel");
+		return (true);
+	}
+    if (!channel->isOperator(&client))
+	{
+		server.queueMessage(client.getFd(), ":ircserv 482 " + user + " " + channelName + " :You're not channel operator");
+		return (true);
+	}
+    if(channel->hasClient(target))
+    {
+        server.queueMessage(client.getFd(), ":ircserv 482 " + user + " " + targetNick + " " + channelName + " :is already on channel");
+        return true;
+    }
+    
+    channel->addInvite(target);
+    prefix = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostname();
+    server.queueMessage(target->getFd(), prefix + " INViTE " + target->getNickname() + " :" + channelName);
+    server.queueMessage(client.getFd(), ":ircserv 341 " + user + " " + target->getNickname() + " " + channelName);
+    return true;
+    
 }
 
 bool Command::handleTopic(Server &server, Client &client, const IrcMsg &msg)
@@ -96,7 +161,7 @@ bool Command::handleTopic(Server &server, Client &client, const IrcMsg &msg)
         }
         else
         {
-            server.queueMessage(client.getFd(), "ircserv 332 " + user + " " + channelName + " :" + channel->getTopic());
+            server.queueMessage(client.getFd(), ":ircserv 332 " + user + " " + channelName + " :" + channel->getTopic());
             return true;
         }
         return true;

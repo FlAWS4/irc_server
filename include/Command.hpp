@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 00:11:11 by hchowdhu          #+#    #+#             */
-/*   Updated: 2026/08/18 04:29:42 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/18 06:24:52 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ class  Command
         static  bool handleTopic(Server &server, Client &client, const IrcMsg &msg);
         static  bool handleNick(Server &server, Client &client, const IrcMsg &msg);
         static  bool handleUser(Server &server, Client &client, const IrcMsg &msg);
+        static  bool handleInvite(Server &server, Client &client, const IrcMsg &msg);
         static  void tryRegister(Server &server, Client &client);
         static  bool isNicknameUsed(Server &server, Client &client,const std::string &nickname);
         static  bool isValidNickname(const std::string &nickname);
