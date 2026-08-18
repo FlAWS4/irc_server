@@ -6,11 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 00:11:27 by hchowdhu          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2026/08/17 21:49:18 by mshariar         ###   ########.fr       */
-=======
-/*   Updated: 2026/08/18 03:08:43 by mshariar         ###   ########.fr       */
->>>>>>> 7007b87 (KICK added)
+/*   Updated: 2026/08/18 03:25:45 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,11 +87,7 @@ void Channel::removeClient(Client *client)
 {
 	for (std::vector< Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 	{
-<<<<<<< HEAD
-		if (*it == Client)
-=======
 		if (*it == client)
->>>>>>> 7007b87 (KICK added)
 		{
 			_clients.erase(it);
 			return ;
@@ -106,11 +98,7 @@ void Channel::removeClient(Client *client)
 
 void Channel::removeOp(Client *client)
 {
-<<<<<<< HEAD
-	for (std::vector< Client *>::iterator it = _operators.begin(); it != _operators.end(): ++it)
-=======
 	for (std::vector< Client *>::iterator it = _operators.begin(); it != _operators.end(); ++it)
->>>>>>> 7007b87 (KICK added)
 	{
 		if (*it == client)
 		{

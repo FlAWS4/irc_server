@@ -6,11 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2026/08/17 23:47:43 by mshariar         ###   ########.fr       */
-=======
-/*   Updated: 2026/08/18 03:10:13 by mshariar         ###   ########.fr       */
->>>>>>> 7007b87 (KICK added)
+/*   Updated: 2026/08/18 03:25:30 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,30 +51,6 @@ bool    Command::execute(Server &server, Client &client, const IrcMsg &msg)
     return true;
 }
 
-<<<<<<< HEAD
-bool    Command::handleKick(Server &server, Client &client, Const IrcMsg &msg)
-{
-    std::string user;
-    std::string targeted_user;
-    std::string prefix;
-    std::string reason;
-    Channel *channel;
-    Client *target;
-
-    user = client.getNickname();
-    if (user.empty())
-        user = "*";
-    if (!client.isRegistered())
-    {
-		server.queueMessage(client.getFd(), ":ircserv 451 * :You have not registered");
-		return (true);
-	}
-    if (msg.params.empty())
-    {
-        server.queueMessage(client.getFd(), ":ircserv ")
-    }
-    
-=======
 bool Command::handleKick(Server &server, Client &client, const IrcMsg &msg)
 {
 	std::string	user;
@@ -147,7 +119,6 @@ bool Command::handleKick(Server &server, Client &client, const IrcMsg &msg)
 	channel->removeClient(target);
 
 	return (true);
->>>>>>> 7007b87 (KICK added)
 }
 
 
