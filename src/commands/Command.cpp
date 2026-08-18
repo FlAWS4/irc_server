@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-/*   Updated: 2026/08/18 03:25:30 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/18 04:56:08 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@ bool    Command::execute(Server &server, Client &client, const IrcMsg &msg)
         return (Command::handlePing(server, client, msg));
     if (msg.command == "QUIT")
         return (Command::handleQuit(server, client, msg));
+    if(msg.command == "TOPIC")
+        return(Command::handleTopic(server, client, msg));
     if (msg.command == "PASS")
         return (Command::handlePass(server, client, msg));
     if (msg.command == "NICK")
@@ -49,6 +51,61 @@ bool    Command::execute(Server &server, Client &client, const IrcMsg &msg)
         return (Command::handlePrivmsg(server, client, msg));
     Command::sendUnknownCommand(server, client, msg);
     return true;
+}
+
+bool Command::handleTopic(Server &server, Client &client, const IrcMsg &msg)
+{
+    std::string user;
+    std::string channelName;
+    std::string prefix;
+    Channel     *channel;
+
+    user = client.getNickname();
+	if (user.empty())
+		user = "*";
+
+	if (!client.isRegistered())
+	{
+		server.queueMessage(client.getFd(), ":ircserv 451 " + user + " :You have not registered");
+		return (true);
+	}
+    if(msg.params.empty())
+    {
+        server.queueMessage(client.getFd(), ":ircserv 461 " + user + " TOPIC :Not enough parameters");
+        return true;
+    }
+    channelName = msg.params[0];
+    channel = server.getChannel(channelName);
+	if (channel == NULL)
+	{
+		server.queueMessage(client.getFd(), ":ircserv 403 " + user + " " + channelName + " :No such channel");
+		return (true);
+	}
+    
+    if (!channel->hasClient(&client))
+	{
+		server.queueMessage(client.getFd(), ":ircserv 442 " + user + " " + channelName + " :No such channel");
+		return true;
+	}
+    if (msg.params.size() == 1)
+    {
+        if (channel->getTopic().empty())
+        {
+            server.queueMessage(client.getFd(), ":ircserv 331 " + user + " " + channelName + " :No topic is set");
+            return true;
+        }
+        else
+        {
+            server.queueMessage(client.getFd(), "ircserv 332 " + user + " " + channelName + " :" + channel->getTopic());
+            return true;
+        }
+        return true;
+    }
+    channel->setTopic(msg.params[1]);
+    prefix = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostname();
+    channel->broadcast(server, NULL, prefix + " TOPIC " + channelName + " :" + msg.params[1]);
+    return true;
+    
 }
 
 bool Command::handleKick(Server &server, Client &client, const IrcMsg &msg)

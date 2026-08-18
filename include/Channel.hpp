@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 00:11:01 by hchowdhu          #+#    #+#             */
-/*   Updated: 2026/08/18 03:15:34 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/18 04:54:35 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ class Channel
         std::string     _name;
         std::vector<Client *>   _clients;
         std::vector<Client *>   _operators;
+        std::string     _topic;
         Channel();
         
     public:
@@ -31,7 +32,9 @@ class Channel
 		Channel(const Channel &other);
 		Channel &operator=(const Channel &other);
 		~Channel();
-
+        
+        const   std::string &getTopic() const;
+        void    setTopic(const std::string &topic);
         const   std::string &getName() const;
         size_t  getClientCount() const;
         bool    hasClient(Client  *client) const;

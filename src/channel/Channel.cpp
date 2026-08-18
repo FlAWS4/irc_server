@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 00:11:27 by hchowdhu          #+#    #+#             */
-/*   Updated: 2026/08/18 03:25:45 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/18 04:27:08 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,13 +16,13 @@
 
 Channel::Channel() {}
 
-Channel::Channel(const std::string &name) : _name(name), _clients(), _operators()
+Channel::Channel(const std::string &name) : _name(name), _clients(), _operators(), _topic()
 {
 }
 
 Channel::Channel(const Channel &other)
 	: _name(other._name), _clients(other._clients),
-	  _operators(other._operators)
+	  _operators(other._operators), _topic(other._topic)
 {
 }
 
@@ -33,6 +33,7 @@ Channel &Channel::operator=(const Channel &other)
 		_name = other._name;
 		_clients = other._clients;
 		_operators = other._operators;
+		_topic = other._topic;
 	}
 	return (*this);
 }
@@ -42,6 +43,16 @@ Channel::~Channel() {}
 const std::string &Channel::getName() const
 {
 	return (_name);
+}
+
+const std::string &Channel::getTopic() const
+{
+	return _topic;
+}
+
+void Channel::setTopic(const std::string &topic)
+{
+	_topic = topic;
 }
 
 size_t Channel::getClientCount() const
