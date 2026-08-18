@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-/*   Updated: 2026/08/18 05:13:05 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/18 05:24:42 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ bool Command::handleTopic(Server &server, Client &client, const IrcMsg &msg)
         }
         else
         {
-            server.queueMessage(client.getFd(), "ircserv 332 " + user + " " + channelName + " :" + channel->getTopic());
+            server.queueMessage(client.getFd(), ":ircserv 332 " + user + " " + channelName + " :" + channel->getTopic());
             return true;
         }
         return true;
@@ -143,7 +143,7 @@ bool Command::handleKick(Server &server, Client &client, const IrcMsg &msg)
 	}
 	if (!channel->hasClient(&client))
 	{
-		server.queueMessage(client.getFd(), ":ircserv 442 " + user + " " + channelName + " :You're not on that channel");
+		server.queueMessage(client.getFd(), ":ircserv 482 " + user + " " + channelName + " :You're not channel operator");
 		return (true);
 	}
 
