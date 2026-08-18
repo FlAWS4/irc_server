@@ -6,7 +6,11 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-/*   Updated: 2026/08/18 03:15:04 by mshariar         ###   ########.fr       */
+<<<<<<< HEAD
+/*   Updated: 2026/08/17 23:47:43 by mshariar         ###   ########.fr       */
+=======
+/*   Updated: 2026/08/18 03:10:13 by mshariar         ###   ########.fr       */
+>>>>>>> 7007b87 (KICK added)
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +53,101 @@ bool    Command::execute(Server &server, Client &client, const IrcMsg &msg)
         return (Command::handlePrivmsg(server, client, msg));
     Command::sendUnknownCommand(server, client, msg);
     return true;
+}
+
+<<<<<<< HEAD
+bool    Command::handleKick(Server &server, Client &client, Const IrcMsg &msg)
+{
+    std::string user;
+    std::string targeted_user;
+    std::string prefix;
+    std::string reason;
+    Channel *channel;
+    Client *target;
+
+    user = client.getNickname();
+    if (user.empty())
+        user = "*";
+    if (!client.isRegistered())
+    {
+		server.queueMessage(client.getFd(), ":ircserv 451 * :You have not registered");
+		return (true);
+	}
+    if (msg.params.empty())
+    {
+        server.queueMessage(client.getFd(), ":ircserv ")
+    }
+    
+=======
+bool Command::handleKick(Server &server, Client &client, const IrcMsg &msg)
+{
+	std::string	user;
+	std::string	channelName;
+	std::string	targetNick;
+	std::string	reason;
+	std::string	prefix;
+	Channel		*channel;
+	Client		*target;
+
+	user = client.getNickname();
+	if (user.empty())
+		user = "*";
+
+	if (!client.isRegistered())
+	{
+		server.queueMessage(client.getFd(), ":ircserv 451 " + user + " :You have not registered");
+		return (true);
+	}
+	if(msg.params.size() < 2)
+	{
+		server.queueMessage(client.getFd(), ":ircserv 461 " + user + " KICK :Not enough parameters");
+		return (true);
+	}
+	channelName = msg.params[0];
+	targetNick = msg.params[1];
+
+	channel = server.getChannel(channelName);
+	if (channel == NULL)
+	{
+		server.queueMessage(client.getFd(), ":ircserv 403 " + user + " " + channelName + " :No such channel");
+		return (true);
+	}
+	if (!channel->hasClient(&client))
+	{
+		server.queueMessage(client.getFd(), ":ircserv 442 " + user + " " + channelName + " :You're not on that channel");
+		return (true);
+	}
+	if (!channel->isOperator(&client))
+	{
+		server.queueMessage(client.getFd(), ":ircserv 482 " + user + " " + channelName + " :You're not channel operator");
+		return (true);
+	}
+
+	target = Command::findClientByNickname(server, targetNick);
+	if(target == NULL)
+	{
+		server.queueMessage(client.getFd(), ":ircserv 401 " + user + " " + targetNick + " :No such nick/channel");
+		return (true);
+	}
+	if (!channel->hasClient(target))
+	{
+		server.queueMessage(client.getFd(), ":ircserv 441 " + user + " " + targetNick + " " + channelName + " :They aren't on that channel");
+		return (true);
+	}
+
+	if (msg.params.size() >= 3 && !msg.params[2].empty())
+		reason = msg.params[2];
+	else
+		reason = user;
+
+	prefix = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostname();
+
+	channel->broadcast(server, NULL, prefix + " KICK " + channelName + " " + targetNick + " :" + reason);
+	channel->removeOp(target);
+	channel->removeClient(target);
+
+	return (true);
+>>>>>>> 7007b87 (KICK added)
 }
 
 
