@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-/*   Updated: 2026/08/20 02:25:41 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/20 02:35:24 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -368,6 +368,11 @@ bool Command::handleTopic(Server &server, Client &client, const IrcMsg &msg)
         }
         return true;
     }
+    if (channel->isTopicRestricted() && !channel->isOperator(&client))
+    {
+	    server.queueMessage(client.getFd(), ":ircserv 482 " + user + " " + channelName + " :You're not channel operator");
+	    return (true);
+    }
     channel->setTopic(msg.params[1]);
     prefix = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostname();
     channel->broadcast(server, NULL, prefix + " TOPIC " + channelName + " :" + msg.params[1]);
@@ -537,10 +542,35 @@ bool Command::handleJoin(Server &server, Client &client, const IrcMsg &msg)
 		server.queueMessage(client.getFd(), ":ircserv 403 " + client.getNickname() + " " + channelName + " :No such channel");
 		return (true);
 	}
-    channel = server.createChannel(channelName);
-    if (channel->hasClient(&client))
-        return (true);
+    channel = server.getChannel(channelName);
+    if (channel != NULL)
+    {
+	    if (channel->hasClient(&client))
+		    return (true);
+
+	    if (channel->isInviteOnly() && !channel->isInvited(&client))
+	    {
+		    server.queueMessage(client.getFd(), ":ircserv 473 " + client.getNickname() + " " + channelName + " :Cannot join channel (+i)");
+		    return (true);
+	    }
+	    if (channel->hasKey())
+	    {
+		    if (msg.params.size() < 2 || msg.params[1] != channel->getKey())
+		    {
+			    server.queueMessage(client.getFd(), ":ircserv 475 " + client.getNickname() + " " + channelName + " :Cannot join channel (+k)");
+			    return (true);
+		    }
+	    }
+	    if (channel->getUserLimit() != -1 && channel->getClientCount() >= (size_t)channel->getUserLimit())
+	    {
+		    server.queueMessage(client.getFd(), ":ircserv 471 " + client.getNickname() + " " + channelName + " :Cannot join channel (+l)");
+		    return (true);
+	    }
+    }
+    else
+	    channel = server.createChannel(channelName);
     channel->addClient(&client);
+    channel->removeInvite(&client);
     if (channel->getClientCount() == 1)
         channel->addOperator(&client);
     prefix = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostname();
