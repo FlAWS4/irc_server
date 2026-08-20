@@ -6,7 +6,7 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/13 00:11:01 by hchowdhu          #+#    #+#             */
-/*   Updated: 2026/08/18 06:15:42 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/20 01:12:40 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,11 @@ class Channel
         std::vector<Client *>   _operators;
         std::string     _topic;
         std::vector<Client *>   _invited;
+        bool    _inviteOnly;
+        bool    _topicResrtricted'
+        bool    _hasKey;
+        std::string _key;
+        int     _userlimit;
         Channel();
         
     public:
@@ -34,6 +39,17 @@ class Channel
 		Channel &operator=(const Channel &other);
 		~Channel();
         
+        bool    isInviteonly() const;
+        void    setInviteonly(bool value);
+        void    isTopicRestricted() const;
+        void    setTopicRestricted(bool value);
+        bool    hasKey() const;
+        const   std::string &getKey() const;
+        void    setKey(const std::string &key);
+        void    removeKey();
+        int     getUserLimit() const;
+        void    setUserLimit(int limit);
+        void    removeUserLimit();
         const   std::string &getTopic() const;
         void    setTopic(const std::string &topic);
         const   std::string &getName() const;

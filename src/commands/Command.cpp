@@ -6,13 +6,15 @@
 /*   By: mshariar <mshariar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/15 01:40:00 by mshariar          #+#    #+#             */
-/*   Updated: 2026/08/18 06:47:30 by mshariar         ###   ########.fr       */
+/*   Updated: 2026/08/20 02:25:41 by mshariar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Command.hpp"
 #include "Server.hpp"
 #include "Client.hpp"
+#include <sstring>
+#include <cstdlib>
 
 Command::Command() {}
 
@@ -51,8 +53,208 @@ bool    Command::execute(Server &server, Client &client, const IrcMsg &msg)
         return(Command::handleInvite(server, client, msg));
     if (msg.command == "PRIVMSG")
         return (Command::handlePrivmsg(server, client, msg));
+    if (msg.command == "MODE")
+        return(Command::handleMode(server, client, msg));
     Command::sendUnknownCommand(server, client, msg);
     return true;
+}
+
+static std::string  intTostr(int n)
+{
+    std::stringstream ss;
+    ss << n;
+    return(ss.str());
+}
+
+static bool isPositive(const std::string &s)
+{
+    if (s.empty())
+        return(false);
+    for(int i = 0; i < s.size(); ++i)
+    {
+        if (s[i] < '0' || s[i] > '9')
+            return false;
+    }
+    return(std::atoi(s.c_str() > 0));
+}
+
+static std::string getModes(Channel *channel)
+{
+    std::string mode;
+    std::string arg;
+
+    mode = "+";
+    if (channel->isInviteOnly())
+        mode += "i";
+    if (channel->isTopicRestricted())
+        mode += "t";
+    if (channel->haskey())
+    {
+        mode += "k";
+        arg += " " + channel->getKey();
+    }
+    if (channel->getUserLimit() != -1)
+    {
+        mode += "l";
+        arg = " " + intTostr(channel->getUserLimit());
+    }
+    return(mode + arg);
+    
+}
+
+bool Command::handleMode(Server &server, Client &client, const IrcMsg &msg)
+{
+    std::string	user;
+	std::string	mode;
+	std::string	channelName;
+	std::string	prefix;
+	Channel		*channel;
+    bool    adding;
+    int paramIndex;
+    
+    user = client.getNickname();
+	if (user.empty())
+		user = "*";
+	if (!client.isRegistered())
+	{
+		server.queueMessage(client.getFd(), ":ircserv 451 " + user + " :You have not registered");
+		return (true);
+	}
+    if(msg.params.empty())
+	{
+		server.queueMessage(client.getFd(), ":ircserv 461 " + user + " MODE :Not enough parameters");
+		return (true);
+	}
+    channelName = msg.params[0];
+    channel = server.getChannel(channelName);
+	if (channel == NULL)
+	{
+		server.queueMessage(client.getFd(), ":ircserv 403 " + user + " " + channelName + " :No such channel");
+		return (true);
+	}
+    if(msg.params.size() == 1)
+    {
+        server.queueMessage(client.getFd(), ":ircserv 324 " + user + " " + channelName + " " + getModes(channel));
+        return true;
+    }
+    if (!channel->hasClient(&client))
+	{
+		server.queueMessage(client.getFd(), ":ircserv 442 " + user + " " + channelName + " :You're not on that channel");
+		return (true);
+	}
+    if (!channel->isOperator(&client))
+	{
+		server.queueMessage(client.getFd(), ":ircserv 482 " + user + " " + channelName + " :You're not channel operator");
+		return (true);
+	}
+    
+    mode = msg.params[1];
+    adding = true;
+    paramIndex = 2;
+    prefix = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostname();
+    for(int i = 0; i < mode.size(); ++i)
+    {
+        if (mode[i] == "+")
+        {
+            adding = true;
+            continue ;
+        }
+        if (mode[i] == '-')
+        {
+            adding = false;
+            continue ;
+        }
+        if (mode[i] == "i")
+        {
+            channel->setInviteOnly(adding);
+            if(adding)
+                channel->broadcast(server, NULL, prefix + " MODE " + channelName + " +i");
+            else
+                channel->broadcast(server, NULL, prefix + " MODE " + channelName + " -i");
+        }
+        else if (mode[i] == 't')
+        {
+            channel->setTopicRestricted(adding);
+            if (adding)
+                channel->broadcast(server, NULL, prefix + " MODE " + channelName + " +t");
+            else
+                channel->broadcast(server, NULL, prefix + " MODE " + channelName + " -t");
+        }
+        else if(mode[i] == 'k')
+        {
+            if (adding)
+            {
+                if (paramIndex >= msg.params.size())
+                {
+                    server.queueMessage(client.getFd(), ":ircserv 461 " + user + " MODE :Not enough parameters");
+		                return (true);
+                }
+                channel->setKey(msg.params[paramIndex]);
+                channel->broadcast(server, NULL, prefix + " MODE " + channelName + " +k" + msg.params[paramIndex]);
+                ++paramIndex;
+            }
+            else
+            {
+                channel->removeKey();
+                channel->broadcast(server, NULL, prefix + " MODE " + channelName + " -k");
+            }
+
+        }
+        else if (mode[i] == 'l')
+        {
+            if (adding)
+            {
+                if (paramIndex >= msg.params.size() || !isPositive(msg.params[paramIndex]))
+                {
+                    server.queueMessage(client.getFd(), ":ircserv 461 " + user + " MODE :Not enough parameters");
+		                return (true);
+                }
+                channel->setUserLimit(std::atoi(msg.params[paramIndex].c_str()));
+                channel->broadcast(server, NULL, prefix + " MODE " + channelName + " +l" + msg.params[paramIndex]);
+                ++paramIndex;
+            }
+            else
+            {
+                channel->removeUserLimit();
+                channel->broadcast(server, NULL, prefix + " MODE " + channelName + " -l");
+            }
+        }
+        else if(mode[i] == 'o')
+        {
+            Client *target;
+            if (paramIndex >= msg.params.size())
+                {
+                    server.queueMessage(client.getFd(), ":ircserv 461 " + user + " MODE :Not enough parameters");
+		                return (true);
+                }
+            target = Command::findClientByNickname(server, msg.params[paramIndex]);
+            if(target == NULL)
+	        {
+		        server.queueMessage(client.getFd(), ":ircserv 401 " + user + " " + msg.params[paramIndex] + " :No such nick/channel");
+		        return (true);
+	        }
+            if (!channel->hasClient(target))
+	        {
+		        server.queueMessage(client.getFd(), ":ircserv 441 " + user + " " + msg.params[paramIndex] + " " + channelName + " :They aren't on that channel");
+		        return (true);
+	        }
+            if (adding)
+            {
+                channel->addOperator(target);
+                channel->broadcast(server, NULL, prefix + " MODE " + channelName + " +o" + msg.params[paramIndex]);
+            }
+            else
+            {
+                channel->removeOp(target);
+                channel->broadcast(server, NULL, prefix + " MODE " + channelName + " -o" + msg.params[paramIndex]);
+            }
+            ++paramIndex;
+        }
+        else
+            server.queueMessage(client.getFd(), ":ircserv 472 " + user + " " + mode[i] + " :is unknow mode char to me");
+    }
+    return true;
+    
 }
 
 bool Command::handleInvite(Server &server, Client &client, const IrcMsg &msg)
