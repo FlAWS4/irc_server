@@ -70,6 +70,7 @@ static bool parsePrivmsg(const std::string &line, std::string &sender,
     std::string &target, std::string &text)
 {
     size_t firstSpace;
+    size_t targetStart;
     size_t secondSpace;
     size_t colon;
 
@@ -80,10 +81,11 @@ static bool parsePrivmsg(const std::string &line, std::string &sender,
         return (false);
     if (line.substr(firstSpace + 1, 7) != "PRIVMSG")
         return (false);
-    secondSpace = line.find(' ', firstSpace + 8);
+    targetStart = firstSpace + 9;
+    secondSpace = line.find(' ', targetStart);
     if (secondSpace == std::string::npos)
         return (false);
-    target = line.substr(firstSpace + 8, secondSpace - (firstSpace + 8));
+    target = line.substr(targetStart, secondSpace - targetStart);
     colon = line.find(" :", secondSpace);
     if (colon == std::string::npos)
         return (false);
