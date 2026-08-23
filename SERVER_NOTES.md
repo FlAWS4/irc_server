@@ -16,14 +16,8 @@ make
 In another terminal:
 
 ```bash
+hostname -I -> get 1st ip address.
 nc -C 127.0.0.1 6667
-PING :12345
-```
-
-Expected reply:
-
-```text
-PONG :12345
 ```
 
 ## Next integration point
